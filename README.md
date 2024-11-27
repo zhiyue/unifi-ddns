@@ -14,7 +14,7 @@ Ensure you have a Cloudflare account and your domain is configured to point to C
 
 #### Deploy With Click To Deploy
 
-1. Deploy the Worker: [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/workerforce/unifi-ddns)
+1. Deploy the Worker: [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/zhiyue/unifi-ddns)
 2. Navigate to the Cloudflare Workers dashboard.
 3. After deployment, note the `\*.workers.dev` route.
 
