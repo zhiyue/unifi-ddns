@@ -34,9 +34,31 @@ class Cloudflare {
 		const response = await this._fetchWithToken(`zones/${zone.id}/dns_records?name=${name}`);
 		const body = await response.json();
 		if (!body.success || body.result.length === 0) {
-			throw new CloudflareApiException(`Failed to find dns record '${name}'`);
+			return null;
 		}
 		return body.result?.filter(rr => rr.type === rrType)[0];
+	}
+
+	async createRecord(zone, name, value, isIPV4 = true) {
+		const rrType = isIPV4 ? "A" : "AAAA";
+		const record = {
+			type: rrType,
+			name: name,
+			content: value,
+			ttl: 1,
+		};
+		const response = await this._fetchWithToken(
+			`zones/${zone.id}/dns_records`,
+			{
+				method: "POST",
+				body: JSON.stringify(record),
+			}
+		);
+		const body = await response.json();
+		if (!body.success) {
+			throw new CloudflareApiException("Failed to create dns record");
+		}
+		return body.result;
 	}
 
 	async updateRecord(record, value) {
@@ -157,8 +179,12 @@ async function informAPI(hostnames, ip, name, token) {
 		if (!zones.has(domainName)) zones.set(domainName, await cloudflare.findZone(domainName));
 
 		const zone = zones.get(domainName);
-		const record = await cloudflare.findRecord(zone, hostname, isIPV4);
-		await cloudflare.updateRecord(record, ip);
+		let record = await cloudflare.findRecord(zone, hostname, isIPV4);
+		if (record === null) {
+			record = await cloudflare.createRecord(zone, hostname, ip, isIPV4);
+		} else {
+			await cloudflare.updateRecord(record, ip);
+		}
 	}
 }
 
